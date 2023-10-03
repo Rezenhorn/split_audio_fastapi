@@ -2,6 +2,7 @@ import json
 import threading
 
 import pika
+from fastapi.logger import logger
 
 from config import settings
 from split_audio.service import get_mono_audio_links
@@ -22,7 +23,7 @@ class ThreadedConsumerBase(threading.Thread):
             )
             self.channel = self.connection.channel()
         except pika.exceptions.AMQPConnectionError as error:
-            # self.app.logger.error(f"Ошибка присоединения к RabbitMQ: {error}")
+            logger.error(f"Ошибка присоединения к RabbitMQ: {error}")
             raise pika.exceptions.AMQPConnectionError from error
 
     def handle_messages(self, data):
@@ -33,10 +34,10 @@ class ThreadedConsumerBase(threading.Thread):
         """Обрабатывает каждое полученное сообщение."""
         try:
             data = json.loads(body)
+            logger.info(f"Получено сообщение в RMQ: {data}")
             self.handle_messages(data)
         except Exception as e:
-            print(e)
-            # self.app.logger.error(f"Ошибка в консьюмере: {e}")
+            logger.error(f"Ошибка в консьюмере: {e}")
         finally:
             self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -44,7 +45,6 @@ class ThreadedConsumerBase(threading.Thread):
         """Останавливает чтение сообщений консьюмером."""
         self.channel.stop_consuming()
         self.connection.close()
-        # self.app.logger.debug("Поток остановлен.")
 
     def run(self):
         """Прослушивание очереди."""
@@ -79,11 +79,14 @@ class ThreadedConsumer(ThreadedConsumerBase):
         link: str = data.get("link")
         if link:
             mono_files_links = get_mono_audio_links(link)
+            logger.info(f"Отправляем результат в RMQ: {data}")
             self.channel.basic_publish(
-                exchange='',
+                exchange="",
                 routing_key=settings.rmq_results_queue,
                 body=json.dumps(
                     mono_files_links.model_dump(mode="json"),
                     ensure_ascii=False
                 )
             )
+        else:
+            logger.error("Сообщение в RMQ не содержит `link`.")

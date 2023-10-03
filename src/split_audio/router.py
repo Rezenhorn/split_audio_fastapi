@@ -10,6 +10,6 @@ router = APIRouter(
 
 
 @router.post("", response_model=MonoAudioDownloadLinks)
-def split_audio(link: StereoAudioLink) -> MonoAudioDownloadLinks:
-    result = get_mono_audio_links(str(link.link))
+def split_audio(body: StereoAudioLink) -> MonoAudioDownloadLinks:
+    result = get_mono_audio_links(str(body.link))
     return result
