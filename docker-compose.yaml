@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    env_file:
+      - src/.env
+
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    hostname: rabbitmq
+    restart: always
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - src/.env
+
+  app:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 80
+    restart: on-failure
+    env_file:
+      - src/.env
+    container_name: fastapi_app
+    ports:
+      - 80:80
+    depends_on:
+      - db
+      - rabbitmq
+
+volumes:
+  postgres_data:
+  rabbitmq:
