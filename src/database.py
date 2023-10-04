@@ -2,7 +2,7 @@ from typing import AsyncGenerator
 
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
@@ -18,7 +18,7 @@ def get_database_url() -> str:
     )
 
 
-Base = declarative_base()
+Base: DeclarativeMeta = declarative_base()
 
 metadata = MetaData()
 
