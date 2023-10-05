@@ -1,7 +1,14 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException
 
+from error_handlers import (
+    http_exception_handler,
+    validation_exception_handler,
+    unknown_exception_handler
+)
 from rmq_consumer.consumer import ThreadedConsumer
 from split_audio.router import router as split_audio_router
 
@@ -22,6 +29,10 @@ logger.addHandler(file_handler)
 app = FastAPI(title="Split Stereo Audio App")
 
 app.include_router(split_audio_router)
+
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, unknown_exception_handler)
 
 td = ThreadedConsumer()
 td.start()
