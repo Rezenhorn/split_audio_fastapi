@@ -3,9 +3,13 @@ import urllib.request
 import uuid
 
 import filetype
+from fastapi.logger import logger
 from pydub import AudioSegment
+from sqlalchemy import insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
+from models import AppRequest
 from s3_storage.service import upload_file_to_s3
 from split_audio.exceptions import DownloadError, UnsupportedExtensionError
 from split_audio.schemas import MonoAudioDownloadLinks, MonoAudioPathes
@@ -94,3 +98,17 @@ def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
         left_channel_link=left_channel_link,
         right_channel_link=right_channel_link
     )
+
+
+async def add_apprequest_to_db(
+    session: AsyncSession,
+    link: str,
+    is_done: bool = True,
+) -> None:
+    """Добавляет запись об использовании сервиса в БД."""
+    # app_request = AppRequest(link=link, is_done=is_done)
+    logger.info(session)
+    logger.info(type(session))
+    app_request = insert(AppRequest).values(link=link, is_done=is_done)
+    await session.execute(app_request)
+    await session.commit()

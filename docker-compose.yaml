@@ -24,13 +24,13 @@ services:
 
   app:
     build: .
-    command: uvicorn main:app --host 0.0.0.0 --port 80
     restart: on-failure
-    env_file:
-      - src/.env
+    command: ["/code/docker/app.sh"]
     container_name: fastapi_app
     ports:
       - 80:80
+    env_file:
+      - src/.env
     depends_on:
       - db
       - rabbitmq
