@@ -41,17 +41,17 @@ class ThreadedConsumerBase(threading.Thread):
         finally:
             self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
-    def stop(self):
-        """Останавливает чтение сообщений консьюмером."""
-        self.channel.stop_consuming()
-        self.connection.close()
-
     def run(self):
         """Прослушивание очереди."""
         try:
             self.channel.start_consuming()
         except KeyboardInterrupt:
             self.stop()
+
+    def stop(self):
+        """Останавливает чтение сообщений консьюмером."""
+        self.channel.stop_consuming()
+        self.connection.close()
 
 
 class ThreadedConsumer(ThreadedConsumerBase):
