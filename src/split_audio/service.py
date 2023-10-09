@@ -3,14 +3,15 @@ import urllib.request
 import uuid
 
 import filetype
+from fastapi.logger import logger
 from pydub import AudioSegment
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
 from models import AppRequest
-from s3_storage.client import get_s3_session, get_s3_async_session
-from s3_storage.service import upload_file_to_s3, upload_files_to_s3_async
+from s3_storage.client import get_s3_async_session
+from s3_storage.service import upload_files_to_s3
 from split_audio.exceptions import DownloadError, UnsupportedExtensionError
 from split_audio.schemas import MonoAudioDownloadLinks, MonoAudioPathes
 
@@ -63,41 +64,7 @@ def _rename_file_with_extension(path_to_file: str) -> os.PathLike:
     return path_to_file_with_extension
 
 
-def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
-    """
-    Разбивает переданный по ссылке стерео
-    аудиофайл на 2 по каналам и загружает в s3 хранилище.
-    Возвращает ссылки на скачивание полученных файлов.
-    """
-    file_name = str(uuid.uuid4())
-    path_to_file = download_file(link, file_name)
-    if ((extension := str(path_to_file).split(".")[-1])
-            not in settings.supported_extensions):
-        os.remove(path_to_file)
-        raise UnsupportedExtensionError(
-            f"Расширение файла `{extension}` не поддерживается."
-        )
-    paths_to_files: MonoAudioPathes = split_audio(path_to_file)
-    try:
-        session = get_s3_session()
-        for path_to_file in paths_to_files.model_dump().values():
-            upload_file_to_s3(session, settings.bucket, path_to_file)
-    finally:
-        os.remove(paths_to_files.left_mono_path)
-        os.remove(paths_to_files.right_mono_path)
-    left_channel_link = (f"{settings.s3_endpoint}"
-                         f"{settings.bucket}/"
-                         f"{os.path.basename(paths_to_files.left_mono_path)}")
-    right_channel_link = (f"{settings.s3_endpoint}"
-                          f"{settings.bucket}/"
-                          f"{os.path.basename(paths_to_files.right_mono_path)}")
-    return MonoAudioDownloadLinks(
-        left_channel_link=left_channel_link,
-        right_channel_link=right_channel_link
-    )
-
-
-async def get_mono_audio_links_async(link: str) -> MonoAudioDownloadLinks:
+async def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
     """
     Разбивает переданный по ссылке стерео
     аудиофайл на 2 по каналам и асинхронно загружает в s3 хранилище.
@@ -114,7 +81,7 @@ async def get_mono_audio_links_async(link: str) -> MonoAudioDownloadLinks:
     paths_to_files: MonoAudioPathes = split_audio(path_to_file)
     try:
         async_session = get_s3_async_session()
-        await upload_files_to_s3_async(
+        await upload_files_to_s3(
             async_session,
             settings.bucket,
             paths_to_files.model_dump().values()

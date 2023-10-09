@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from fastapi import FastAPI
@@ -9,7 +10,7 @@ from error_handlers import (
     validation_exception_handler,
     unknown_exception_handler
 )
-from rmq_consumer.consumer import ThreadedConsumer
+from rabbitmq.consumer import consume
 from split_audio.router import router as split_audio_router
 
 
@@ -34,5 +35,7 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unknown_exception_handler)
 
-td = ThreadedConsumer()
-td.start()
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(consume())

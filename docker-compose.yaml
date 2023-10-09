@@ -21,6 +21,11 @@ services:
       - 15672:15672
     env_file:
       - src/.env
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
 
   app:
     build: .
@@ -32,8 +37,10 @@ services:
     env_file:
       - src/.env
     depends_on:
-      - db
-      - rabbitmq
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   postgres_data:
