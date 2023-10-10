@@ -26,7 +26,10 @@ async def process_message(channel: AbstractChannel, message: IncomingMessage):
             )
             logger.info(f"Отправляем результат в RMQ: {link}")
             await channel.default_exchange.publish(
-                Message(message.encode()),
+                Message(
+                    message.encode(),
+                    content_type="application/json"
+                ),
                 routing_key=settings.rmq_results_queue,
             )
         else:
@@ -40,6 +43,7 @@ async def consume():
         logger.error(f"Ошибка присоединения к RabbitMQ: {error}")
         raise AMQPConnectionError from error
     channel = await connection.channel()
+    await channel.set_qos(prefetch_count=3)
     tasks_queue = await channel.declare_queue(
         settings.rmq_tasks_queue, durable=True
     )
@@ -48,4 +52,7 @@ async def consume():
     )
     async with tasks_queue.iterator() as queue_iter:
         async for message in queue_iter:
-            await process_message(channel, message)
+            try:
+                await process_message(channel, message)
+            except Exception as e:
+                logger.error(f"Ошибка при обработке сообщения: {e}")

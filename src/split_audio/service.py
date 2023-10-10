@@ -3,7 +3,6 @@ import urllib.request
 import uuid
 
 import filetype
-from fastapi.logger import logger
 from pydub import AudioSegment
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
