@@ -52,6 +52,7 @@ def _rename_file_with_extension(path_to_file: str) -> os.PathLike:
     try:
         file_extension = filetype.guess(path_to_file).extension
     except AttributeError as e:
+        os.remove(path_to_file)
         raise DownloadError(
             "Ошибка определения расширения файла. Проверьте переданную ссылку."
         ) from e

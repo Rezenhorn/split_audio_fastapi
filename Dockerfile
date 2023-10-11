@@ -8,8 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE 1 \
 RUN apt-get update && apt-get install -y ffmpeg libavcodec-extra
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r /code/requirements.txt
+RUN pip install -U pip && pip install --no-cache-dir -r /code/requirements.txt
 
 COPY . .
 
-RUN chmod a+x docker/app.sh
+RUN chmod a+x scripts/app.sh

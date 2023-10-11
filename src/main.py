@@ -1,6 +1,8 @@
 import asyncio
 import logging
+import os
 
+from concurrent_log_handler import ConcurrentRotatingFileHandler
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
@@ -14,17 +16,24 @@ from rabbitmq.consumer import consume
 from split_audio.router import router as split_audio_router
 
 
-logger = logging.getLogger("fastapi")
-logger.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler()
-file_handler = logging.FileHandler(filename='./server.log')
-formatter = logging.Formatter(
-    "[%(asctime)s][%(levelname)s]: %(module)s - line:%(lineno)d - %(message)s"
+fastapi_logger = logging.getLogger("fastapi")
+
+if not os.path.exists("logs"):
+    os.mkdir("logs")
+file_handler = ConcurrentRotatingFileHandler(
+    "logs/system.log", "a", 10 * 1024 * 1024, 10, encoding="utf-8"
 )
-stream_handler.setFormatter(formatter)
+formatter = logging.Formatter(
+    "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+)
 file_handler.setFormatter(formatter)
-logger.addHandler(stream_handler)
-logger.addHandler(file_handler)
+
+gunicorn_error_logger = logging.getLogger("gunicorn.error")
+gunicorn_logger = logging.getLogger("gunicorn")
+uvicorn_access_logger = logging.getLogger("uvicorn.access")
+uvicorn_access_logger.handlers = gunicorn_error_logger.handlers
+fastapi_logger.handlers = gunicorn_error_logger.handlers
+gunicorn_error_logger.addHandler(file_handler)
 
 
 app = FastAPI(title="Split Stereo Audio App")
