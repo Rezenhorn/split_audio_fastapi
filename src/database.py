@@ -2,27 +2,25 @@ from typing import AsyncGenerator
 
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import DeclarativeMeta, declarative_base, sessionmaker
 from sqlalchemy.pool import NullPool
 
 from config import settings
 
 
-def get_database_url() -> str:
-    return (
-        f"postgresql+asyncpg://"
-        f"{settings.db_user}:{settings.db_pass}"
-        f"@{settings.db_host}:{settings.db_port}"
-        f"/{settings.db_name}"
-    )
+URL = (
+    f"postgresql+asyncpg://"
+    f"{settings.db_user}:{settings.db_pass}"
+    f"@{settings.db_host}:{settings.db_port}"
+    f"/{settings.db_name}"
+)
 
 
 Base: DeclarativeMeta = declarative_base()
 
 metadata = MetaData()
 
-engine = create_async_engine(get_database_url(), poolclass=NullPool)
+engine = create_async_engine(URL, poolclass=NullPool)
 async_session_maker = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )

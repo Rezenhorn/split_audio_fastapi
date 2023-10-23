@@ -1,6 +1,7 @@
 import os
 import urllib.request
 import uuid
+from fastapi import Depends
 
 import filetype
 from pydub import AudioSegment
@@ -18,7 +19,7 @@ from split_audio.schemas import MonoAudioDownloadLinks, MonoAudioPathes
 def split_audio(path_to_file: os.PathLike) -> MonoAudioPathes:
     """
     Разбивает стерео аудио-файл на 2 файла по каналам.
-    Возвращает пути к полученным файлам и удаляет исходный файл.
+    Возвращает пути к полученным файлам.
     """
     stereo_audio = AudioSegment.from_file(path_to_file)
     file_name = os.path.basename(path_to_file)
@@ -31,7 +32,6 @@ def split_audio(path_to_file: os.PathLike) -> MonoAudioPathes:
     )
     mono_audios[0].export(path_to_left_channel)
     mono_audios[1].export(path_to_right_channel)
-    os.remove(path_to_file)
     return MonoAudioPathes(
         left_mono_path=path_to_left_channel,
         right_mono_path=path_to_right_channel
@@ -79,6 +79,7 @@ async def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
             f"Расширение файла `{extension}` не поддерживается."
         )
     paths_to_files: MonoAudioPathes = split_audio(path_to_file)
+    os.remove(path_to_file)
     try:
         async_session = get_s3_async_session()
         await upload_files_to_s3(
@@ -104,7 +105,7 @@ async def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
 async def add_apprequest_to_db(
     session: AsyncSession,
     link: str,
-    is_done: bool = True,
+    is_done: bool = True
 ) -> None:
     """Добавляет запись об использовании сервиса в БД."""
     app_request = insert(AppRequest).values(link=link, is_done=is_done)

@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     db_pass: str = Field(alias='POSTGRES_PASSWORD')
     db_user: str = Field(alias='POSTGRES_USER')
     db_name: str = Field(alias='POSTGRES_DB')
+    test_db_name: str = Field(alias='POSTGRES_TEST_DB')
 
     rmq_host: str
     rmq_port: int
