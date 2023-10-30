@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +18,7 @@ router = APIRouter(
 @router.post("", response_model=MonoAudioDownloadLinks)
 async def split_audio_async(
     body: StereoAudioLink,
-    db_session: AsyncSession = Depends(get_async_session)
+    db_session: Annotated[AsyncSession, Depends(get_async_session)]
 ) -> MonoAudioDownloadLinks:
     link = str(body.link)
     is_done = False

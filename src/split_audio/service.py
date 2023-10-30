@@ -1,7 +1,6 @@
 import os
 import urllib.request
 import uuid
-from fastapi import Depends
 
 import filetype
 from pydub import AudioSegment
