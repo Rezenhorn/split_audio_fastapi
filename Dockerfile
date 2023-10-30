@@ -11,5 +11,3 @@ COPY requirements.txt .
 RUN pip install -U pip && pip install --no-cache-dir -r /code/requirements.txt
 
 COPY . .
-
-RUN chmod a+x scripts/app.sh

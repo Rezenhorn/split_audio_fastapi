@@ -33,7 +33,7 @@ services:
     container_name: app
     build: .
     restart: on-failure
-    command: ["/code/scripts/app.sh"]
+    command: bash -c "alembic upgrade head && cd src && gunicorn -c /code/gunicorn/gunicorn.conf.py main:app"
     expose:
       - 5000
     env_file:
