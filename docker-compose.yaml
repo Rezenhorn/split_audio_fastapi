@@ -11,6 +11,17 @@ services:
     env_file:
       - src/.env
 
+  pgadmin4:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    env_file:
+      - src/.env
+    ports:
+      - "5050:5050"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3.11-management
@@ -57,4 +68,5 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin-data:
   rabbitmq:

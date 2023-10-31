@@ -1,8 +1,10 @@
-import os
 from pathlib import Path
 
 from pydantic import AnyUrl, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+BASE_DIR = Path(__file__).parent
 
 
 class Settings(BaseSettings):
@@ -11,6 +13,10 @@ class Settings(BaseSettings):
     db_pass: str = Field(alias='POSTGRES_PASSWORD')
     db_user: str = Field(alias='POSTGRES_USER')
     db_name: str = Field(alias='POSTGRES_DB')
+
+    pgadmin_default_email: str
+    pgadmin_default_password: str
+    pgadmin_listen_port: int
 
     rmq_host: str
     rmq_port: int
@@ -26,9 +32,7 @@ class Settings(BaseSettings):
     aws_server_public_key: str
     aws_server_secret_key: str
 
-    current_file: Path = os.path.realpath(__file__)
-    current_directory: Path = os.path.dirname(current_file)
-    path_to_temp_files: Path = Path(current_directory) / "temp"
+    path_to_temp_files: Path = Path(BASE_DIR) / "temp"
 
     supported_extensions: list[str] = [
         "aac",
