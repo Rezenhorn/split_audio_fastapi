@@ -8,11 +8,15 @@ from src.split_audio.service import download_file, split_audio
 @pytest.mark.parametrize(
     "url, file_name",
     [
-        ("https://storage.yandexcloud.net/rezenhorn-bucket/M1F1-Alaw-AFsp.wav",
-         "test_wav"),
-        ("https://storage.yandexcloud.net/rezenhorn-bucket/test.svg",
-         "test_img"),
-    ]
+        (
+            "https://storage.yandexcloud.net/rezenhorn-bucket/M1F1-Alaw-AFsp.wav",
+            "test_wav",
+        ),
+        (
+            "https://storage.yandexcloud.net/rezenhorn-bucket/test.svg",
+            "test_img",
+        ),
+    ],
 )
 def test_download_file(url, file_name):
     path_to_file = download_file(url, file_name)

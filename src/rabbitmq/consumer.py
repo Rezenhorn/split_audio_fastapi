@@ -21,15 +21,11 @@ async def process_message(channel: AbstractChannel, message: IncomingMessage):
         if link:
             mono_files_links = await get_mono_audio_links(link)
             message: str = json.dumps(
-                mono_files_links.model_dump(mode="json"),
-                ensure_ascii=False
+                mono_files_links.model_dump(mode="json"), ensure_ascii=False
             )
             logger.info(f"Отправляем результат в RMQ: {link}")
             await channel.default_exchange.publish(
-                Message(
-                    message.encode(),
-                    content_type="application/json"
-                ),
+                Message(message.encode(), content_type="application/json"),
                 routing_key=settings.rmq_results_queue,
             )
         else:
@@ -47,9 +43,7 @@ async def consume():
     tasks_queue = await channel.declare_queue(
         settings.rmq_tasks_queue, durable=True
     )
-    await channel.declare_queue(
-        settings.rmq_results_queue, durable=True
-    )
+    await channel.declare_queue(settings.rmq_results_queue, durable=True)
     async with tasks_queue.iterator() as queue_iter:
         async for message in queue_iter:
             try:

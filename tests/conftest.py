@@ -31,7 +31,7 @@ async_session_maker = sessionmaker(
 )
 
 
-@pytest.fixture(autouse=True, scope='session')
+@pytest.fixture(autouse=True, scope="session")
 async def prepare_database():
     assert settings.db_name == "test_db"
     async with engine_test.begin() as conn:
@@ -48,7 +48,7 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
         yield ac
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def event_loop(request):
     """Create an instance of the default event loop for each test case."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
@@ -62,8 +62,7 @@ def change_temp_files_path():
     if not os.path.exists(path_to_temp_files):
         os.mkdir(f"{TEST_DIR}/temp")
     with mock.patch(
-        "config.settings.path_to_temp_files",
-        new=path_to_temp_files
+        "config.settings.path_to_temp_files", new=path_to_temp_files
     ):
         yield
         shutil.rmtree(path_to_temp_files)

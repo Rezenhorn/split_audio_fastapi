@@ -7,7 +7,7 @@ from database import Base
 
 class AppRequest(Base):
     __tablename__ = "AppRequest"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     link: Mapped[str]

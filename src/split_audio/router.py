@@ -9,16 +9,13 @@ from split_audio.schemas import MonoAudioDownloadLinks, StereoAudioLink
 from split_audio.service import add_apprequest_to_db, get_mono_audio_links
 
 
-router = APIRouter(
-    prefix="/split_audio",
-    tags=["Split audio"]
-)
+router = APIRouter(prefix="/split_audio", tags=["Split audio"])
 
 
 @router.post("", response_model=MonoAudioDownloadLinks)
 async def split_audio_async(
     body: StereoAudioLink,
-    db_session: Annotated[AsyncSession, Depends(get_async_session)]
+    db_session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> MonoAudioDownloadLinks:
     link = str(body.link)
     is_done = False

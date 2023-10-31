@@ -8,11 +8,11 @@ BASE_DIR = Path(__file__).parent
 
 
 class Settings(BaseSettings):
-    db_host: str = Field(alias='POSTGRES_HOST')
-    db_port: int = Field(alias='POSTGRES_PORT')
-    db_pass: str = Field(alias='POSTGRES_PASSWORD')
-    db_user: str = Field(alias='POSTGRES_USER')
-    db_name: str = Field(alias='POSTGRES_DB')
+    db_host: str = Field(alias="POSTGRES_HOST")
+    db_port: int = Field(alias="POSTGRES_PORT")
+    db_pass: str = Field(alias="POSTGRES_PASSWORD")
+    db_user: str = Field(alias="POSTGRES_USER")
+    db_name: str = Field(alias="POSTGRES_DB")
 
     pgadmin_default_email: str
     pgadmin_default_password: str
@@ -20,8 +20,8 @@ class Settings(BaseSettings):
 
     rmq_host: str
     rmq_port: int
-    rmq_user: str = Field(alias='RABBITMQ_DEFAULT_USER')
-    rmq_pass: str = Field(alias='RABBITMQ_DEFAULT_PASS')
+    rmq_user: str = Field(alias="RABBITMQ_DEFAULT_USER")
+    rmq_pass: str = Field(alias="RABBITMQ_DEFAULT_PASS")
     rmq_vhost: str
 
     rmq_tasks_queue: str = "tasks"
@@ -44,7 +44,7 @@ class Settings(BaseSettings):
         "wmv",
         "aiff",
         "alac",
-        "m4r"
+        "m4r",
     ]
 
     model_config = SettingsConfigDict(env_file="src/.env")

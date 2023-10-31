@@ -11,7 +11,7 @@ from starlette.exceptions import HTTPException
 from error_handlers import (
     http_exception_handler,
     validation_exception_handler,
-    unknown_exception_handler
+    unknown_exception_handler,
 )
 from rabbitmq.consumer import consume
 from split_audio.router import router as split_audio_router

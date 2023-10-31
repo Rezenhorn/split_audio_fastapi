@@ -32,7 +32,7 @@ def split_audio(path_to_file: os.PathLike) -> MonoAudioPathes:
     mono_audios[1].export(path_to_right_channel)
     return MonoAudioPathes(
         left_mono_path=path_to_left_channel,
-        right_mono_path=path_to_right_channel
+        right_mono_path=path_to_right_channel,
     )
 
 
@@ -70,8 +70,9 @@ async def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
     """
     file_name = str(uuid.uuid4())
     path_to_file = download_file(link, file_name)
-    if ((extension := str(path_to_file).split(".")[-1])
-            not in settings.supported_extensions):
+    if (
+        extension := str(path_to_file).split(".")[-1]
+    ) not in settings.supported_extensions:
         os.remove(path_to_file)
         raise UnsupportedExtensionError(
             f"Расширение файла `{extension}` не поддерживается."
@@ -83,27 +84,29 @@ async def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
         await upload_files_to_s3(
             async_session,
             settings.bucket,
-            paths_to_files.model_dump().values()
+            paths_to_files.model_dump().values(),
         )
     finally:
         os.remove(paths_to_files.left_mono_path)
         os.remove(paths_to_files.right_mono_path)
-    left_channel_link = (f"{settings.s3_endpoint}"
-                         f"{settings.bucket}/"
-                         f"{os.path.basename(paths_to_files.left_mono_path)}")
-    right_channel_link = (f"{settings.s3_endpoint}"
-                          f"{settings.bucket}/"
-                          f"{os.path.basename(paths_to_files.right_mono_path)}")
+    left_channel_link = (
+        f"{settings.s3_endpoint}"
+        f"{settings.bucket}/"
+        f"{os.path.basename(paths_to_files.left_mono_path)}"
+    )
+    right_channel_link = (
+        f"{settings.s3_endpoint}"
+        f"{settings.bucket}/"
+        f"{os.path.basename(paths_to_files.right_mono_path)}"
+    )
     return MonoAudioDownloadLinks(
         left_channel_link=left_channel_link,
-        right_channel_link=right_channel_link
+        right_channel_link=right_channel_link,
     )
 
 
 async def add_apprequest_to_db(
-    session: AsyncSession,
-    link: str,
-    is_done: bool = True
+    session: AsyncSession, link: str, is_done: bool = True
 ) -> None:
     """Добавляет запись об использовании сервиса в БД."""
     app_request = AppRequest(link=link, is_done=is_done)

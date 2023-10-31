@@ -8,7 +8,7 @@ def get_s3_async_session() -> aioboto3.Session:
     return aioboto3.Session(
         aws_access_key_id=settings.aws_server_public_key,
         aws_secret_access_key=settings.aws_server_secret_key,
-        region_name="ru-central1"
+        region_name="ru-central1",
     )
 
 

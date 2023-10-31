@@ -25,9 +25,7 @@ async def upload_file_to_s3(
 
 
 async def upload_files_to_s3(
-    session: aioboto3.Session,
-    bucket: str,
-    s3_files: Iterable[os.PathLike]
+    session: aioboto3.Session, bucket: str, s3_files: Iterable[os.PathLike]
 ) -> asyncio.Future:
     """Асинхронно загружает несколько файлов в s3 bucket."""
     tasks = []
