@@ -4,7 +4,6 @@ import uuid
 
 import filetype
 from pydub import AudioSegment
-from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
@@ -107,6 +106,6 @@ async def add_apprequest_to_db(
     is_done: bool = True
 ) -> None:
     """Добавляет запись об использовании сервиса в БД."""
-    app_request = insert(AppRequest).values(link=link, is_done=is_done)
-    await session.execute(app_request)
+    app_request = AppRequest(link=link, is_done=is_done)
+    session.add(app_request)
     await session.commit()

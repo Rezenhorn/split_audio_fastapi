@@ -23,6 +23,7 @@ DATABASE_URL_TEST = (
     f"@{settings.db_host}:{settings.db_port}"
     f"/{settings.db_name}"
 )
+TEST_DIR = Path(__file__).parent
 
 engine_test = create_async_engine(DATABASE_URL_TEST, poolclass=NullPool)
 async_session_maker = sessionmaker(
@@ -41,10 +42,6 @@ async def prepare_database():
         await conn.run_sync(Base.metadata.drop_all)
 
 
-current_file = os.path.realpath(__file__)
-current_directory = os.path.dirname(current_file)
-
-
 @pytest.fixture(scope="session")
 async def ac() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=app, base_url="http://test") as ac:
@@ -61,9 +58,9 @@ def event_loop(request):
 
 @pytest.fixture(scope="session", autouse=True)
 def change_temp_files_path():
-    path_to_temp_files = Path(current_directory) / "temp"
+    path_to_temp_files = Path(TEST_DIR) / "temp"
     if not os.path.exists(path_to_temp_files):
-        os.mkdir(f"{current_directory}/temp")
+        os.mkdir(f"{TEST_DIR}/temp")
     with mock.patch(
         "config.settings.path_to_temp_files",
         new=path_to_temp_files
@@ -74,12 +71,12 @@ def change_temp_files_path():
 
 @pytest.fixture(scope="session")
 def path_to_test_audio():
-    return Path(current_directory) / "test_data/test_audio.wav"
+    return Path(TEST_DIR) / "test_data/test_audio.wav"
 
 
 @pytest.fixture(scope="session")
 def path_to_test_picture():
-    return Path(current_directory) / "test_data/test_pic.jpg"
+    return Path(TEST_DIR) / "test_data/test_pic.jpg"
 
 
 @pytest.fixture(scope="session")

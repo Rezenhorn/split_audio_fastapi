@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from contextlib import asynccontextmanager
 
 from concurrent_log_handler import ConcurrentRotatingFileHandler
 from fastapi import FastAPI
@@ -36,15 +37,16 @@ fastapi_logger.handlers = gunicorn_error_logger.handlers
 gunicorn_error_logger.addHandler(file_handler)
 
 
-app = FastAPI(title="Split Stereo Audio App")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(consume())
+    yield
+
+
+app = FastAPI(title="Split Stereo Audio App", lifespan=lifespan)
 
 app.include_router(split_audio_router)
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unknown_exception_handler)
-
-
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(consume())
