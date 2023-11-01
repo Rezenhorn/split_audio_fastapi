@@ -1,1 +1,1 @@
-from database import Base, metadata
+from database import Base
