@@ -8,7 +8,7 @@ from conftest import async_session_maker
 
 
 async def test_split_audio_api(ac: AsyncClient, test_bucket: str):
-    with mock.patch("config.settings.bucket", new=test_bucket):
+    with mock.patch("config.settings.s3.bucket", new=test_bucket):
         link = "https://storage.yandexcloud.net/rezenhorn-bucket/M1F1-Alaw-AFsp.wav"
         response = await ac.post("/split_audio", json={"link": link})
         assert response.status_code == 200

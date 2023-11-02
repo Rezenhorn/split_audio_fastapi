@@ -9,11 +9,10 @@ from config import settings
 
 URL = (
     f"postgresql+asyncpg://"
-    f"{settings.db_user}:{settings.db_pass}"
-    f"@{settings.db_host}:{settings.db_port}"
-    f"/{settings.db_name}"
+    f"{settings.db.user}:{settings.db.password}"
+    f"@{settings.db.host}:{settings.db.port}"
+    f"/{settings.db.name}"
 )
-
 
 Base: DeclarativeMeta = declarative_base()
 

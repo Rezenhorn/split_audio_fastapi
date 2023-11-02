@@ -83,20 +83,20 @@ async def get_mono_audio_links(link: str) -> MonoAudioDownloadLinks:
         async_session = get_s3_async_session()
         await upload_files_to_s3(
             async_session,
-            settings.bucket,
+            settings.s3.bucket,
             paths_to_files.model_dump().values(),
         )
     finally:
         os.remove(paths_to_files.left_mono_path)
         os.remove(paths_to_files.right_mono_path)
     left_channel_link = (
-        f"{settings.s3_endpoint}"
-        f"{settings.bucket}/"
+        f"{settings.s3.endpoint}"
+        f"{settings.s3.bucket}/"
         f"{os.path.basename(paths_to_files.left_mono_path)}"
     )
     right_channel_link = (
-        f"{settings.s3_endpoint}"
-        f"{settings.bucket}/"
+        f"{settings.s3.endpoint}"
+        f"{settings.s3.bucket}/"
         f"{os.path.basename(paths_to_files.right_mono_path)}"
     )
     return MonoAudioDownloadLinks(

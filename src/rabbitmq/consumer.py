@@ -10,8 +10,8 @@ from split_audio.service import get_mono_audio_links
 
 
 RMQ_URL = (
-    f"amqp://{settings.rmq_user}:{settings.rmq_pass}"
-    f"@{settings.rmq_host}:{settings.rmq_port}/{settings.rmq_vhost}"
+    f"amqp://{settings.rmq.user}:{settings.rmq.password}"
+    f"@{settings.rmq.host}:{settings.rmq.port}/{settings.rmq.vhost}"
 )
 
 
@@ -26,13 +26,13 @@ async def process_message(channel: AbstractChannel, message: IncomingMessage):
             logger.info(f"Отправляем результат в RMQ: {link}")
             await channel.default_exchange.publish(
                 Message(message.encode(), content_type="application/json"),
-                routing_key=settings.rmq_results_queue,
+                routing_key=settings.rmq.results_queue,
             )
         else:
             logger.error("Сообщение в RMQ не содержит `link`.")
 
 
-async def consume():
+async def rmq_consume():
     try:
         connection = await connect(RMQ_URL)
     except AMQPConnectionError as error:
@@ -41,9 +41,9 @@ async def consume():
     channel = await connection.channel()
     await channel.set_qos(prefetch_count=3)
     tasks_queue = await channel.declare_queue(
-        settings.rmq_tasks_queue, durable=True
+        settings.rmq.tasks_queue, durable=True
     )
-    await channel.declare_queue(settings.rmq_results_queue, durable=True)
+    await channel.declare_queue(settings.rmq.results_queue, durable=True)
     async with tasks_queue.iterator() as queue_iter:
         async for message in queue_iter:
             try:

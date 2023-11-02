@@ -13,7 +13,7 @@ from error_handlers import (
     validation_exception_handler,
     unknown_exception_handler,
 )
-from rabbitmq.consumer import consume
+from rabbitmq.consumer import rmq_consume
 from split_audio.router import router as split_audio_router
 
 
@@ -39,7 +39,7 @@ gunicorn_error_logger.addHandler(file_handler)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    asyncio.create_task(consume())
+    asyncio.create_task(rmq_consume())
     yield
 
 

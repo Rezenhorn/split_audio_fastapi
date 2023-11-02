@@ -19,9 +19,9 @@ from src.s3_storage.client import get_s3_async_session
 
 DATABASE_URL_TEST = (
     f"postgresql+asyncpg://"
-    f"{settings.db_user}:{settings.db_pass}"
-    f"@{settings.db_host}:{settings.db_port}"
-    f"/{settings.db_name}"
+    f"{settings.db.user}:{settings.db.password}"
+    f"@{settings.db.host}:{settings.db.port}"
+    f"/{settings.db.name}"
 )
 TEST_DIR = Path(__file__).parent
 
@@ -33,7 +33,7 @@ async_session_maker = sessionmaker(
 
 @pytest.fixture(autouse=True, scope="session")
 async def prepare_database():
-    assert settings.db_name == "test_db"
+    assert settings.db.name == "test_db"
     async with engine_test.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
@@ -91,14 +91,14 @@ async def s3_async_session():
 @pytest.fixture(scope="session", autouse=True)
 async def clean_test_bucket(s3_async_session, test_bucket):
     async with s3_async_session.resource(
-        "s3", endpoint_url=str(settings.s3_endpoint)
+        "s3", endpoint_url=str(settings.s3.endpoint)
     ) as s3:
         bucket = await s3.Bucket(test_bucket)
         async for obj in bucket.objects.all():
             await obj.delete()
     yield s3_async_session
     async with s3_async_session.resource(
-        "s3", endpoint_url=str(settings.s3_endpoint)
+        "s3", endpoint_url=str(settings.s3.endpoint)
     ) as s3:
         bucket = await s3.Bucket(test_bucket)
         async for obj in bucket.objects.all():
